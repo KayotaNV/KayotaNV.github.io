@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Моя 3D модель с эффектами</title>
   
-  <!-- САМЫЕ СТАБИЛЬНЫЕ ВЕРСИИ -->
+  <!-- ИСПОЛЬЗУЕМ ДРУГОЙ CDN -->
   <script type="importmap">
     {
       "imports": {
-        "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+        "three": "https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.module.js"
       }
     }
   </script>
   
-  <!-- ЯВНО УКАЗЫВАЕМ ВЕРСИИ -->
-  <script type="module" src="https://unpkg.com/@google/model-viewer@3.1.0/dist/model-viewer-module.js"></script>
-  <script type="module" src="https://unpkg.com/@google/model-viewer-effects@3.1.0/dist/model-viewer-effects.js"></script>
+  <!-- БЕРЕМ С CDN.JSDELIVR.NET (ТАМ НЕТ ПРОБЛЕМ C CORS) -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.1.0/dist/model-viewer-module.min.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer-effects@3.1.0/dist/model-viewer-effects.min.js"></script>
   
   <style>
     body { margin: 0; font-family: Arial; background: #f2f2f2; }
@@ -84,7 +84,8 @@ mv.addEventListener('load', () => {
   }
 });
 
-mv.addEventListener('error', () => {
+mv.addEventListener('error', (e) => {
+  console.error('Ошибка:', e);
   status.textContent = '❌ Ошибка загрузки';
 });
 
@@ -92,6 +93,7 @@ btn1.addEventListener('click', () => {
   if (animations.length >= 1) {
     mv.animationName = animations[0];
     mv.currentTime = 0;
+    status.textContent = 'Играет: ' + animations[0];
   }
 });
 
@@ -99,6 +101,7 @@ btn2.addEventListener('click', () => {
   if (animations.length >= 2) {
     mv.animationName = animations[1];
     mv.currentTime = 0;
+    status.textContent = 'Играет: ' + animations[1];
   }
 });
 
@@ -107,8 +110,9 @@ outlineBtn.addEventListener('click', () => {
   const effect = document.getElementById('outlineEffect');
   if (effect) {
     outlineActive = !outlineActive;
-    effect.blendMode = outlineActive ? 'default' : 'skip';
+    effect.setAttribute('blend-mode', outlineActive ? 'default' : 'skip');
     outlineBtn.classList.toggle('active', outlineActive);
+    status.textContent = outlineActive ? '🔴 Контур включен' : '⚪ Контур выключен';
   }
 });
 
@@ -116,10 +120,23 @@ pixelBtn.addEventListener('click', () => {
   const effect = document.getElementById('pixelEffect');
   if (effect) {
     pixelActive = !pixelActive;
-    effect.blendMode = pixelActive ? 'default' : 'skip';
+    effect.setAttribute('blend-mode', pixelActive ? 'default' : 'skip');
     pixelBtn.classList.toggle('active', pixelActive);
+    status.textContent = pixelActive ? '🔳 Пикселизация включена' : '⬜ Пикселизация выключена';
   }
 });
+
+// Автопереключение
+setInterval(() => {
+  if (animations.length >= 2) {
+    if (mv.animationName === animations[0]) {
+      mv.animationName = animations[1];
+    } else {
+      mv.animationName = animations[0];
+    }
+    mv.currentTime = 0;
+  }
+}, 15000);
 </script>
 
 </body>

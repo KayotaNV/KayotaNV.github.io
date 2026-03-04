@@ -6,22 +6,19 @@
 
   <title>Моя 3D модель с анимациями</title>
 
-  <!-- Подключаем библиотеку model-viewer из интернета (как в вашем примере) -->
   <script type="module"
     src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
   </script>
 
   <style>
-    /* Это стили - как сделать красиво */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #f2f2f2;
     }
 
-    /* Панель с кнопками */
     #controls {
-      position: fixed;      /* Кнопки всегда сверху, даже если крутить страницу */
+      position: fixed;      
       top: 20px;
       left: 20px;
       z-index: 10;
@@ -44,10 +41,9 @@
     }
 
     button:hover {
-      background-color: #45a049;  /* Цвет при наведении */
+      background-color: #45a049;  
     }
 
-    /* Окошко с 3D моделью на весь экран */
     model-viewer {
       width: 100vw;
       height: 100vh;
@@ -58,109 +54,76 @@
 
 <body>
 
-<!-- Панель с кнопками -->
 <div id="controls">
   <h3>Управление анимацией</h3>
   <button id="btn1">Анимация 1 (движение вверх)</button>
   <button id="btn2">Анимация 2 (вращение)</button>
   <p style="font-size: 14px; color: #666; margin-top: 10px;">
-    Анимация переключается автоматически каждые 3 секунды
   </p>
 </div>
 
-<!-- 
-  ВАЖНО: В src="my_model.glb" укажите точно такое же имя,
-  как у вашего файла из Blender!
--->
 <model-viewer
   id="mv"
   src="Rouge (Prime)1.glb"
-  camera-controls        <!-- Можно крутить модель мышкой -->
-  autoplay               <!-- Анимация запускается сразу -->
-  animation-crossfade-duration="1000"  <!-- Плавный переход 1 секунда -->
+  camera-controls        
+  autoplay               
+  animation-crossfade-duration="1000"  
 >
 </model-viewer>
 
 <script>
 (() => {
-  // Находим нашу модель и кнопки на странице
   const mv = document.getElementById('mv');
   const btn1 = document.getElementById('btn1');
   const btn2 = document.getElementById('btn2');
 
-  // Здесь будем хранить список анимаций из модели
   let animations = [];
 
-  // ------------------------------------------------------
-  // 1. Когда модель загрузилась - получаем список анимаций
-  // ------------------------------------------------------
   mv.addEventListener('load', () => {
-    // Получаем все анимации, которые есть в модели
     animations = mv.availableAnimations;
     
-    // Показываем в консоли (нажмите F12 чтобы увидеть)
     console.log('Анимации в модели:', animations);
 
-    // Если есть хотя бы одна анимация
     if (animations.length >= 1) {
-      // Запускаем первую по счету (в вашем случае CubeAction)
       mv.animationName = animations[0];
       mv.play();
     }
   });
 
-  // ------------------------------------------------------
-  // 2. Кнопка 1 - запускает первую анимацию (движение вверх)
-  // ------------------------------------------------------
   btn1.addEventListener('click', () => {
     if (animations.length >= 1) {
-      mv.animationName = animations[0];  // CubeAction
-      mv.currentTime = 0;                 // Начать с начала
+      mv.animationName = animations[0];  
+      mv.currentTime = 0;                 
       mv.play();
     } else {
       alert('Анимация 1 не найдена!');
     }
   });
 
-  // ------------------------------------------------------
-  // 3. Кнопка 2 - запускает вторую анимацию (вращение)
-  // ------------------------------------------------------
   btn2.addEventListener('click', () => {
     if (animations.length >= 2) {
-      mv.animationName = animations[1];  // RotateAnim
-      mv.currentTime = 0;                 // Начать с начала
+      mv.animationName = animations[1];  
+      mv.currentTime = 0;                 
       mv.play();
     } else {
       alert('Анимация 2 не найдена! Проверьте, что в модели есть две анимации.');
     }
   });
 
-  // ------------------------------------------------------
-  // 4. БОНУС: Автоматическое переключение каждые 3 секунды
-  // ------------------------------------------------------
   setInterval(() => {
-    // Проверяем, что модель загрузилась и анимации есть
     if (animations.length >= 2) {
-      // Если сейчас играет первая анимация (CubeAction)
       if (mv.animationName === animations[0]) {
-        mv.animationName = animations[1];  // Переключаем на вторую (RotateAnim)
+        mv.animationName = animations[1];  
       } else {
-        mv.animationName = animations[0];  // Иначе переключаем на первую
+        mv.animationName = animations[0];  
       }
-      mv.play();  // Запускаем
+      mv.play();  
     }
-  }, 3000);  // Каждые 3000 миллисекунд = 3 секунды
+  }, 15 000);  // Каждые 3000 миллисекунд = 15 секунды
 
 })();
 </script>
 
-<!-- 
-  Важное примечание:
-  Если анимации не переключаются или модель не видно, 
-  проверьте в консоли браузера (F12) названия анимаций.
-  В вашей модели они могут называться не CubeAction и RotateAnim,
-  а как-то иначе. Тогда нужно исправить названия в коде выше.
--->
-
 </body>
+
 </html>

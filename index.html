@@ -5,25 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Моя 3D модель с эффектами</title>
   
-  <!-- ========== ДОБАВЛЕНО: Подключение для пост-эффектов ========== -->
-  <!-- Скрипт для поддержки import maps в Safari -->
-  <script async src="https://ga.jspm.io/npm:es-module-shims@1.7.1/dist/es-module-shims.js"></script>
-  
-  <!-- Карта импортов для Three.js (нужна для эффектов) -->
+  <!-- Подключаем всё необходимое для эффектов -->
   <script type="importmap">
     {
       "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@^0.182.0/build/three.module.min.js"
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
       }
     }
   </script>
   
-  <!-- ВАЖНО: Заменяем обычную версию на модульную (с поддержкой эффектов) -->
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer-module.min.js"></script>
+  <!-- Подключаем модульную версию model-viewer -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer-module.min.js"></script>
   
-  <!-- Подключаем библиотеку эффектов -->
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer-effects/dist/model-viewer-effects.min.js"></script>
-  <!-- =========================================================== -->
+  <!-- Подключаем эффекты -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer-effects.min.js"></script>
   
   <style>
     body { margin: 0; font-family: Arial; background: #f2f2f2; }
@@ -32,7 +27,6 @@
       position: fixed; top: 20px; left: 20px; z-index: 10;
       background: white; padding: 15px; border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      max-width: 280px;
     }
     
     button {
@@ -43,13 +37,13 @@
     
     button:hover { background-color: #45a049; }
     
-    /* ДОБАВЛЕНО: Стили для чекбоксов и ползунка */
     h4 {
       margin: 15px 0 5px 0;
       border-top: 1px solid #ccc;
       padding-top: 10px;
     }
     
+    /* Стили для чекбоксов */
     .effect-checkbox {
       display: flex;
       align-items: center;
@@ -65,24 +59,6 @@
       cursor: pointer;
     }
     
-    .slider-container {
-      margin: 10px 0 15px 0;
-      padding-left: 28px;
-      transition: all 0.3s;
-    }
-    
-    .slider-container label {
-      display: block;
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 5px;
-    }
-    
-    .slider-container input {
-      width: 100%;
-      cursor: pointer;
-    }
-    
     model-viewer { width: 100vw; height: 100vh; background: #e0e0e0; }
   </style>
 </head>
@@ -93,66 +69,50 @@
   <button id="btn1">Анимация 1</button>
   <button id="btn2">Анимация 2</button>
   
-  <!-- ДОБАВЛЕНО: Управление эффектами -->
-  <h4>✨ Пост-эффекты</h4>
+  <h4>✨ Эффекты</h4>
   
   <label class="effect-checkbox">
-    <input type="checkbox" id="toggleBloom" checked> Свечение (Bloom)
+    <input type="checkbox" id="togglePixelate"> Пикселизация
   </label>
   
   <label class="effect-checkbox">
-    <input type="checkbox" id="togglePixelate"> Пикселизация (Pixelate)
+    <input type="checkbox" id="toggleOutline"> Контур
   </label>
-  
-  <!-- Ползунок для пикселизации (по умолчанию скрыт) -->
-  <div class="slider-container" id="pixelateSlider" style="display: none;">
-    <label>Размер пикселя: <span id="pixelSizeValue">5</span></label>
-    <input type="range" id="pixelSize" min="2" max="20" step="1" value="5">
-  </div>
   
   <p id="status" style="font-size: 14px; color: #666;">Загрузка...</p>
 </div>
 
-<!-- ДОБАВЛЕНО: Внутрь model-viewer добавили effect-composer с эффектами -->
+<!-- Модель с эффектами -->
 <model-viewer
   id="mv"
   src="Rouge (Prime)1.glb"
   camera-controls
   autoplay
+  style="width: 100%; height: 100vh;"
 >
-  <!-- Эффекты помещаются внутрь тега model-viewer -->
-  <effect-composer render-mode="quality" msaa="4">
-    <!-- Свечение (Bloom) - по умолчанию включено -->
-    <bloom-effect id="bloomEffect"
-                  intensity="1.5"
-                  radius="0.8"
-                  threshold="0.1"
-                  blend-mode="default">
-    </bloom-effect>
-
-    <!-- Пикселизация (Pixelate) - по умолчанию выключена -->
-    <pixelate-effect id="pixelateEffect"
-                     granularity="5"
-                     blend-mode="skip">
-    </pixelate-effect>
+  <!-- Два эффекта: пикселизация и контур -->
+  <effect-composer>
+    <!-- Пикселизация (по умолчанию выключена) -->
+    <pixelate-effect id="pixelEffect" granularity="5" blend-mode="skip"></pixelate-effect>
+    
+    <!-- Контур (по умолчанию выключен) -->
+    <outline-effect id="outlineEffect" color="#ff0000" blend-mode="skip"></outline-effect>
   </effect-composer>
 </model-viewer>
 
 <script>
-// Ваш код полностью сохранен! Я только ДОБАВИЛ в него управление эффектами
 const mv = document.getElementById('mv');
 const btn1 = document.getElementById('btn1');
 const btn2 = document.getElementById('btn2');
 const status = document.getElementById('status');
 
-// ДОБАВЛЕНО: Получаем элементы эффектов
-const bloomEffect = document.getElementById('bloomEffect');
-const pixelateEffect = document.getElementById('pixelateEffect');
-const toggleBloom = document.getElementById('toggleBloom');
+// Эффекты
+const pixelEffect = document.getElementById('pixelEffect');
+const outlineEffect = document.getElementById('outlineEffect');
+
+// Чекбоксы
 const togglePixelate = document.getElementById('togglePixelate');
-const pixelateSlider = document.getElementById('pixelateSlider');
-const pixelSize = document.getElementById('pixelSize');
-const pixelSizeValue = document.getElementById('pixelSizeValue');
+const toggleOutline = document.getElementById('toggleOutline');
 
 let animations = [];
 
@@ -190,7 +150,7 @@ btn2.addEventListener('click', () => {
   }
 });
 
-// Автопереключение
+// Автопереключение 
 setInterval(() => {
   if (animations.length >= 2) {
     if (mv.animationName === animations[0]) {
@@ -202,32 +162,20 @@ setInterval(() => {
   }
 }, 15000); // 15 секунд
 
-// ========== ДОБАВЛЕНО: Управление эффектами ==========
-// Свечение (Bloom)
-if (bloomEffect) {
-  toggleBloom.addEventListener('change', (event) => {
-    bloomEffect.blendMode = event.target.checked ? 'default' : 'skip';
-    status.textContent = event.target.checked ? '✨ Свечение включено' : '✨ Свечение выключено';
-  });
-}
+// ===== УПРАВЛЕНИЕ ЭФФЕКТАМИ =====
 
-// Пикселизация (Pixelate)
-if (pixelateEffect) {
-  // Показываем/скрываем ползунок при включении/выключении
-  togglePixelate.addEventListener('change', (event) => {
-    pixelateEffect.blendMode = event.target.checked ? 'default' : 'skip';
-    pixelateSlider.style.display = event.target.checked ? 'block' : 'none';
-    status.textContent = event.target.checked ? '🧊 Пикселизация включена' : '🧊 Пикселизация выключена';
-  });
+// Пикселизация
+togglePixelate.addEventListener('change', (event) => {
+  pixelEffect.blendMode = event.target.checked ? 'default' : 'skip';
+  status.textContent = event.target.checked ? '✅ Пикселизация включена' : '❌ Пикселизация выключена';
+});
 
-  // Регулировка размера пикселей
-  pixelSize.addEventListener('input', (event) => {
-    const value = event.target.value;
-    pixelateEffect.granularity = value;
-    pixelSizeValue.textContent = value;
-  });
-}
-// ====================================================
+// Контур
+toggleOutline.addEventListener('change', (event) => {
+  outlineEffect.blendMode = event.target.checked ? 'default' : 'skip';
+  status.textContent = event.target.checked ? '✅ Контур включен' : '❌ Контур выключен';
+});
+
 </script>
 
 </body>

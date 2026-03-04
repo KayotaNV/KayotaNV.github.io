@@ -5,54 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Моя 3D модель с эффектами</title>
   
-  <!-- ПОДКЛЮЧЕНИЕ САМЫМ ПРОСТЫМ СПОСОБОМ -->
-  <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer-module.js"></script>
-  <script type="module" src="https://unpkg.com/@google/model-viewer-effects@3.5.0/dist/model-viewer-effects.js"></script>
+  <!-- Подключаем model-viewer с поддержкой эффектов -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+      }
+    }
+  </script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer-module.min.js"></script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer-effects@3.5.0/dist/model-viewer-effects.min.js"></script>
   
   <style>
     body { margin: 0; font-family: Arial; background: #f2f2f2; }
-    
     #controls {
       position: fixed; top: 20px; left: 20px; z-index: 10;
       background: white; padding: 15px; border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-    
     button {
       margin: 5px; padding: 10px 20px; cursor: pointer;
       font-size: 16px; background-color: #4CAF50; color: white;
       border: none; border-radius: 5px;
     }
-    
     button:hover { background-color: #45a049; }
     
-    /* Стили для чекбоксов */
-    .effect-checkbox {
-      display: flex;
-      align-items: center;
-      margin: 8px 0;
-      font-size: 15px;
-      cursor: pointer;
+    /* Стили для кнопок эффектов */
+    .effect-btn {
+      background-color: #ff5500;
+    }
+    .effect-btn.active {
+      background-color: #ff2200;
+      box-shadow: 0 0 10px rgba(255,85,0,0.5);
     }
     
-    .effect-checkbox input {
-      width: 18px;
-      height: 18px;
-      margin-right: 10px;
-      cursor: pointer;
-    }
-    
-    h4 {
-      margin: 15px 0 5px 0;
-      border-top: 1px solid #ccc;
-      padding-top: 10px;
-    }
-    
-    model-viewer { 
-      width: 100vw; 
-      height: 100vh; 
-      background: #e0e0e0; 
-    }
+    model-viewer { width: 100vw; height: 100vh; background: #e0e0e0; }
   </style>
 </head>
 <body>
@@ -62,15 +49,11 @@
   <button id="btn1">Анимация 1</button>
   <button id="btn2">Анимация 2</button>
   
-  <h4>✨ Эффекты</h4>
-  <label class="effect-checkbox">
-    <input type="checkbox" id="togglePixelate"> Пикселизация
-  </label>
-  <label class="effect-checkbox">
-    <input type="checkbox" id="toggleOutline"> Контур
-  </label>
+  <h4 style="margin: 10px 0 5px 0;">✨ Эффекты</h4>
+  <button id="outlineBtn" class="effect-btn">Контур</button>
+  <button id="pixelBtn" class="effect-btn">Пикселизация</button>
   
-  <p id="status" style="font-size: 14px; color: #666;">Загрузка...</p>
+  <p id="status" style="font-size: 14px; color: #666; margin-top: 10px;">Загрузка...</p>
 </div>
 
 <model-viewer
@@ -78,43 +61,40 @@
   src="Rouge (Prime)1.glb"
   camera-controls
   autoplay
-  style="width: 100%; height: 100vh;"
 >
   <!-- Эффекты внутри модели -->
   <effect-composer>
-    <pixelate-effect id="pixelEffect" granularity="5" blend-mode="skip"></pixelate-effect>
     <outline-effect id="outlineEffect" color="red" blend-mode="skip"></outline-effect>
+    <pixelate-effect id="pixelEffect" granularity="15" blend-mode="skip"></pixelate-effect>
   </effect-composer>
 </model-viewer>
 
 <script>
+// Простой код как в вашем примере
 const mv = document.getElementById('mv');
 const btn1 = document.getElementById('btn1');
 const btn2 = document.getElementById('btn2');
+const outlineBtn = document.getElementById('outlineBtn');
+const pixelBtn = document.getElementById('pixelBtn');
 const status = document.getElementById('status');
 
 // Эффекты
-const pixelEffect = document.getElementById('pixelEffect');
 const outlineEffect = document.getElementById('outlineEffect');
-const togglePixelate = document.getElementById('togglePixelate');
-const toggleOutline = document.getElementById('toggleOutline');
+const pixelEffect = document.getElementById('pixelEffect');
 
 let animations = [];
+let outlineActive = false;
+let pixelActive = false;
 
 // Когда модель загрузилась
 mv.addEventListener('load', () => {
   animations = mv.availableAnimations;
-  status.textContent = '✅ Модель загружена! Анимаций: ' + animations.length;
+  status.textContent = 'Найдено анимаций: ' + animations.length;
   console.log('Анимации:', animations);
   
   if (animations.length > 0) {
     mv.animationName = animations[0];
   }
-  
-  // Небольшая задержка перед проверкой эффектов
-  setTimeout(() => {
-    console.log('Эффекты загружены:', pixelEffect, outlineEffect);
-  }, 1000);
 });
 
 // Если ошибка загрузки
@@ -150,26 +130,24 @@ setInterval(() => {
     }
     mv.currentTime = 0;
   }
-}, 15000);
+}, 15000); // 15 секунд
 
-// ===== УПРАВЛЕНИЕ ЭФФЕКТАМИ =====
-togglePixelate.addEventListener('change', (event) => {
-  if (pixelEffect) {
-    pixelEffect.blendMode = event.target.checked ? 'default' : 'skip';
-    status.textContent = event.target.checked ? '✅ Пикселизация включена' : '❌ Пикселизация выключена';
-  } else {
-    console.error('Эффект пикселизации не найден!');
-    status.textContent = '❌ Ошибка: эффект не загрузился';
+// ===== ПРОСТОЕ УПРАВЛЕНИЕ ЭФФЕКТАМИ =====
+outlineBtn.addEventListener('click', () => {
+  if (outlineEffect) {
+    outlineActive = !outlineActive;
+    outlineEffect.blendMode = outlineActive ? 'default' : 'skip';
+    outlineBtn.classList.toggle('active', outlineActive);
+    status.textContent = outlineActive ? '✅ Контур включен' : '❌ Контур выключен';
   }
 });
 
-toggleOutline.addEventListener('change', (event) => {
-  if (outlineEffect) {
-    outlineEffect.blendMode = event.target.checked ? 'default' : 'skip';
-    status.textContent = event.target.checked ? '✅ Контур включен' : '❌ Контур выключен';
-  } else {
-    console.error('Эффект контура не найден!');
-    status.textContent = '❌ Ошибка: эффект не загрузился';
+pixelBtn.addEventListener('click', () => {
+  if (pixelEffect) {
+    pixelActive = !pixelActive;
+    pixelEffect.blendMode = pixelActive ? 'default' : 'skip';
+    pixelBtn.classList.toggle('active', pixelActive);
+    status.textContent = pixelActive ? '✅ Пикселизация включена' : '❌ Пикселизация выключена';
   }
 });
 </script>

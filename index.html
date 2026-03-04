@@ -14,9 +14,20 @@
     }
   </script>
 
-  <!-- Подключаем model-viewer и эффекты с esm.sh -->
-  <script type="module">import "https://esm.sh/@google/model-viewer@3.5.0";</script>
-  <script type="module">import "https://esm.sh/@google/model-viewer-effects@3.5.0";</script>
+  <!-- ИСПОЛЬЗУЕМ JSDELIVR, НО С РАЗНЫМИ ВЕРСИЯМИ -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js"
+      }
+    }
+  </script>
+
+  <!-- Основная библиотека model-viewer (версия 3.5.0 - с официального сайта) -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer-module.min.js"></script>
+
+  <!-- Пакет эффектов (версия 3.4.0 - попробуем её) -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer-effects@3.4.0/dist/model-viewer-effects.min.js"></script>
 
   <style>
     /* Стили точно такие же, как в вашем рабочем примере */
@@ -141,3 +152,4 @@ pixelBtn.addEventListener('click', () => {
 
 </body>
 </html>
+

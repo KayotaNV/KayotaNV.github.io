@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Моя 3D модель с эффектами</title>
   
-  <!-- ТОЧНО ТАКОЕ ЖЕ ПОДКЛЮЧЕНИЕ, КАК В ТЕСТЕ, НО С ДОБАВЛЕНИЕМ ЭФФЕКТОВ -->
+  <!-- ПОДКЛЮЧЕНИЕ С РАБОЧИМИ ВЕРСИЯМИ -->
   <script type="importmap">
     {
       "imports": {
-        "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+        "three": "https://unpkg.com/three@0.126.0/build/three.module.js"
       }
     }
   </script>
@@ -30,7 +30,7 @@
     }
     button:hover { background-color: #45a049; }
     
-    /* Кнопки эффектов */
+    /* Стили для кнопок эффектов */
     .effect-btn {
       background-color: #ff5500;
     }
@@ -38,6 +38,8 @@
       background-color: #ff2200;
       box-shadow: 0 0 10px rgba(255,85,0,0.5);
     }
+    
+    h4 { margin: 10px 0 5px 0; }
     
     model-viewer { width: 100vw; height: 100vh; background: #e0e0e0; }
   </style>
@@ -49,21 +51,19 @@
   <button id="btn1">Анимация 1</button>
   <button id="btn2">Анимация 2</button>
   
-  <h4 style="margin: 10px 0 5px 0;">✨ Эффекты</h4>
+  <h4>✨ Эффекты</h4>
   <button id="outlineBtn" class="effect-btn">Контур</button>
   <button id="pixelBtn" class="effect-btn">Пикселизация</button>
   
   <p id="status" style="font-size: 14px; color: #666; margin-top: 10px;">Загрузка...</p>
 </div>
 
-<!-- ВАЖНО: ТОЧНО ТАКОЙ ЖЕ ТЕГ, КАК В ТЕСТЕ, НО С ДОБАВЛЕННЫМИ ЭФФЕКТАМИ ВНУТРИ -->
 <model-viewer
   id="mv"
   src="Rouge (Prime)1.glb"
   camera-controls
   autoplay
 >
-  <!-- Эффекты ВНУТРИ тега, не снаружи -->
   <effect-composer>
     <outline-effect id="outlineEffect" color="red" blend-mode="skip"></outline-effect>
     <pixelate-effect id="pixelEffect" granularity="15" blend-mode="skip"></pixelate-effect>
@@ -71,7 +71,6 @@
 </model-viewer>
 
 <script>
-// ПРОСТОЙ КАК В ТЕСТЕ, НО С ДОБАВЛЕНИЕМ ЭФФЕКТОВ
 const mv = document.getElementById('mv');
 const btn1 = document.getElementById('btn1');
 const btn2 = document.getElementById('btn2');
@@ -79,7 +78,6 @@ const outlineBtn = document.getElementById('outlineBtn');
 const pixelBtn = document.getElementById('pixelBtn');
 const status = document.getElementById('status');
 
-// Получаем эффекты
 const outlineEffect = document.getElementById('outlineEffect');
 const pixelEffect = document.getElementById('pixelEffect');
 
@@ -87,27 +85,20 @@ let animations = [];
 let outlineActive = false;
 let pixelActive = false;
 
-// Когда модель загрузилась (как в тесте)
 mv.addEventListener('load', () => {
-  animations = mv.availableAnimations;
+  animations = mv.availableAnimations || [];
   status.textContent = 'Найдено анимаций: ' + animations.length;
-  console.log('Анимации:', animations);
+  console.log('✅ Модель загружена');
   
   if (animations.length > 0) {
     mv.animationName = animations[0];
   }
-  
-  // Проверяем, что эффекты загрузились
-  console.log('Эффекты:', outlineEffect, pixelEffect);
 });
 
-// Если ошибка загрузки
-mv.addEventListener('error', (e) => {
-  console.error('Ошибка:', e);
-  status.textContent = '❌ Ошибка загрузки';
+mv.addEventListener('error', () => {
+  status.textContent = '❌ Ошибка: файл модели не найден!';
 });
 
-// Кнопка 1
 btn1.addEventListener('click', () => {
   if (animations.length >= 1) {
     mv.animationName = animations[0];
@@ -116,7 +107,6 @@ btn1.addEventListener('click', () => {
   }
 });
 
-// Кнопка 2
 btn2.addEventListener('click', () => {
   if (animations.length >= 2) {
     mv.animationName = animations[1];
@@ -125,7 +115,6 @@ btn2.addEventListener('click', () => {
   }
 });
 
-// Автопереключение 
 setInterval(() => {
   if (animations.length >= 2) {
     if (mv.animationName === animations[0]) {
@@ -137,11 +126,11 @@ setInterval(() => {
   }
 }, 15000);
 
-// УПРАВЛЕНИЕ ЭФФЕКТАМИ (ПРОСТО)
+// УПРАВЛЕНИЕ ЭФФЕКТАМИ
 outlineBtn.addEventListener('click', () => {
   if (outlineEffect) {
     outlineActive = !outlineActive;
-    outlineEffect.blendMode = outlineActive ? 'default' : 'skip';
+    outlineEffect.setAttribute('blend-mode', outlineActive ? 'default' : 'skip');
     outlineBtn.classList.toggle('active', outlineActive);
     status.textContent = outlineActive ? '🔴 Контур включен' : '⚪ Контур выключен';
   }
@@ -150,7 +139,7 @@ outlineBtn.addEventListener('click', () => {
 pixelBtn.addEventListener('click', () => {
   if (pixelEffect) {
     pixelActive = !pixelActive;
-    pixelEffect.blendMode = pixelActive ? 'default' : 'skip';
+    pixelEffect.setAttribute('blend-mode', pixelActive ? 'default' : 'skip');
     pixelBtn.classList.toggle('active', pixelActive);
     status.textContent = pixelActive ? '🔳 Пикселизация включена' : '⬜ Пикселизация выключена';
   }

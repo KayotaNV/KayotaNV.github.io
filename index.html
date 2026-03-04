@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Моя 3D модель с эффектами</title>
   
-  <!-- Подключаем всё необходимое для эффектов -->
+  <!-- Подключаем модульную версию (с поддержкой эффектов) -->
   <script type="importmap">
     {
       "imports": {
@@ -13,35 +13,22 @@
       }
     }
   </script>
-  
-  <!-- Подключаем модульную версию model-viewer -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer-module.min.js"></script>
-  
-  <!-- Подключаем эффекты -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer-effects.min.js"></script>
   
   <style>
     body { margin: 0; font-family: Arial; background: #f2f2f2; }
-    
     #controls {
       position: fixed; top: 20px; left: 20px; z-index: 10;
       background: white; padding: 15px; border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-    
     button {
       margin: 5px; padding: 10px 20px; cursor: pointer;
       font-size: 16px; background-color: #4CAF50; color: white;
       border: none; border-radius: 5px;
     }
-    
     button:hover { background-color: #45a049; }
-    
-    h4 {
-      margin: 15px 0 5px 0;
-      border-top: 1px solid #ccc;
-      padding-top: 10px;
-    }
     
     /* Стили для чекбоксов */
     .effect-checkbox {
@@ -51,12 +38,16 @@
       font-size: 15px;
       cursor: pointer;
     }
-    
     .effect-checkbox input {
       width: 18px;
       height: 18px;
       margin-right: 10px;
       cursor: pointer;
+    }
+    h4 {
+      margin: 15px 0 5px 0;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
     }
     
     model-viewer { width: 100vw; height: 100vh; background: #e0e0e0; }
@@ -69,12 +60,11 @@
   <button id="btn1">Анимация 1</button>
   <button id="btn2">Анимация 2</button>
   
+  <!-- Чекбоксы для эффектов -->
   <h4>✨ Эффекты</h4>
-  
   <label class="effect-checkbox">
     <input type="checkbox" id="togglePixelate"> Пикселизация
   </label>
-  
   <label class="effect-checkbox">
     <input type="checkbox" id="toggleOutline"> Контур
   </label>
@@ -82,35 +72,29 @@
   <p id="status" style="font-size: 14px; color: #666;">Загрузка...</p>
 </div>
 
-<!-- Модель с эффектами -->
+<!-- Внутрь model-viewer добавили эффекты -->
 <model-viewer
   id="mv"
   src="Rouge (Prime)1.glb"
   camera-controls
   autoplay
-  style="width: 100%; height: 100vh;"
 >
-  <!-- Два эффекта: пикселизация и контур -->
   <effect-composer>
-    <!-- Пикселизация (по умолчанию выключена) -->
     <pixelate-effect id="pixelEffect" granularity="5" blend-mode="skip"></pixelate-effect>
-    
-    <!-- Контур (по умолчанию выключен) -->
     <outline-effect id="outlineEffect" color="#ff0000" blend-mode="skip"></outline-effect>
   </effect-composer>
 </model-viewer>
 
 <script>
+
 const mv = document.getElementById('mv');
 const btn1 = document.getElementById('btn1');
 const btn2 = document.getElementById('btn2');
 const status = document.getElementById('status');
 
-// Эффекты
+// Получаем элементы эффектов
 const pixelEffect = document.getElementById('pixelEffect');
 const outlineEffect = document.getElementById('outlineEffect');
-
-// Чекбоксы
 const togglePixelate = document.getElementById('togglePixelate');
 const toggleOutline = document.getElementById('toggleOutline');
 
@@ -160,22 +144,19 @@ setInterval(() => {
     }
     mv.currentTime = 0;
   }
-}, 15000); // 15 секунд
+}, 15000); // 15 секунды
 
-// ===== УПРАВЛЕНИЕ ЭФФЕКТАМИ =====
-
-// Пикселизация
+// ========== Управление эффектами ==========
 togglePixelate.addEventListener('change', (event) => {
   pixelEffect.blendMode = event.target.checked ? 'default' : 'skip';
   status.textContent = event.target.checked ? '✅ Пикселизация включена' : '❌ Пикселизация выключена';
 });
 
-// Контур
 toggleOutline.addEventListener('change', (event) => {
   outlineEffect.blendMode = event.target.checked ? 'default' : 'skip';
   status.textContent = event.target.checked ? '✅ Контур включен' : '❌ Контур выключен';
 });
-
+// ====================================================
 </script>
 
 </body>

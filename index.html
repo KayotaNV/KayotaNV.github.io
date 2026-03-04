@@ -4,21 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Моя 3D модель с эффектами</title>
-  
-  <!-- ИСПОЛЬЗУЕМ ДРУГОЙ CDN -->
+
+  <!-- ИСПОЛЬЗУЕМ esm.sh - ОН АВТОМАТИЧЕСКИ ПОДБЕРЕТ ВСЕ ЗАВИСИМОСТИ -->
   <script type="importmap">
     {
       "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.module.js"
+        "three": "https://esm.sh/three@0.128.0"
       }
     }
   </script>
-  
-  <!-- БЕРЕМ С CDN.JSDELIVR.NET (ТАМ НЕТ ПРОБЛЕМ C CORS) -->
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.1.0/dist/model-viewer-module.min.js"></script>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer-effects@3.1.0/dist/model-viewer-effects.min.js"></script>
-  
+
+  <!-- Подключаем model-viewer и эффекты с esm.sh -->
+  <script type="module">import "https://esm.sh/@google/model-viewer@3.5.0";</script>
+  <script type="module">import "https://esm.sh/@google/model-viewer-effects@3.5.0";</script>
+
   <style>
+    /* Стили точно такие же, как в вашем рабочем примере */
     body { margin: 0; font-family: Arial; background: #f2f2f2; }
     #controls {
       position: fixed; top: 20px; left: 20px; z-index: 10;
@@ -31,6 +32,7 @@
       border: none; border-radius: 5px;
     }
     button:hover { background-color: #45a049; }
+    /* Кнопки эффексов */
     .effect-btn { background-color: #ff5500; }
     .effect-btn.active { background-color: #ff2200; }
     h4 { margin: 10px 0 5px 0; }
@@ -43,11 +45,11 @@
   <h3>Управление анимацией</h3>
   <button id="btn1">Анимация 1</button>
   <button id="btn2">Анимация 2</button>
-  
+
   <h4>✨ Эффекты</h4>
   <button id="outlineBtn" class="effect-btn">Контур</button>
   <button id="pixelBtn" class="effect-btn">Пикселизация</button>
-  
+
   <p id="status" style="font-size: 14px; color: #666;">Загрузка...</p>
 </div>
 
@@ -57,6 +59,7 @@
   camera-controls
   autoplay
 >
+  <!-- Эффекты внутри тега -->
   <effect-composer>
     <outline-effect id="outlineEffect" color="red" blend-mode="skip"></outline-effect>
     <pixelate-effect id="pixelEffect" granularity="15" blend-mode="skip"></pixelate-effect>
@@ -64,6 +67,7 @@
 </model-viewer>
 
 <script>
+// Простой код, как вы любите
 const mv = document.getElementById('mv');
 const btn1 = document.getElementById('btn1');
 const btn2 = document.getElementById('btn2');
@@ -71,24 +75,26 @@ const outlineBtn = document.getElementById('outlineBtn');
 const pixelBtn = document.getElementById('pixelBtn');
 const status = document.getElementById('status');
 
+// Эффекты
+const outlineEffect = document.getElementById('outlineEffect');
+const pixelEffect = document.getElementById('pixelEffect');
+
 let animations = [];
 let outlineActive = false;
 let pixelActive = false;
 
+// Загрузка модели
 mv.addEventListener('load', () => {
   animations = mv.availableAnimations || [];
   status.textContent = '✅ Загружено! Анимаций: ' + animations.length;
-  
-  if (animations.length > 0) {
-    mv.animationName = animations[0];
-  }
+  if (animations.length > 0) mv.animationName = animations[0];
 });
 
-mv.addEventListener('error', (e) => {
-  console.error('Ошибка:', e);
-  status.textContent = '❌ Ошибка загрузки';
+mv.addEventListener('error', () => {
+  status.textContent = '❌ Ошибка: файл модели не найден!';
 });
 
+// Кнопки анимаций
 btn1.addEventListener('click', () => {
   if (animations.length >= 1) {
     mv.animationName = animations[0];
@@ -105,38 +111,32 @@ btn2.addEventListener('click', () => {
   }
 });
 
-// Эффекты
+// АВТОПЕРЕКЛЮЧЕНИЕ (как у вас)
+setInterval(() => {
+  if (animations.length >= 2) {
+    mv.animationName = mv.animationName === animations[0] ? animations[1] : animations[0];
+    mv.currentTime = 0;
+  }
+}, 15000);
+
+// УПРАВЛЕНИЕ ЭФФЕКТАМИ (ПРОСТО)
 outlineBtn.addEventListener('click', () => {
-  const effect = document.getElementById('outlineEffect');
-  if (effect) {
+  if (outlineEffect) {
     outlineActive = !outlineActive;
-    effect.setAttribute('blend-mode', outlineActive ? 'default' : 'skip');
+    outlineEffect.blendMode = outlineActive ? 'default' : 'skip';
     outlineBtn.classList.toggle('active', outlineActive);
     status.textContent = outlineActive ? '🔴 Контур включен' : '⚪ Контур выключен';
   }
 });
 
 pixelBtn.addEventListener('click', () => {
-  const effect = document.getElementById('pixelEffect');
-  if (effect) {
+  if (pixelEffect) {
     pixelActive = !pixelActive;
-    effect.setAttribute('blend-mode', pixelActive ? 'default' : 'skip');
+    pixelEffect.blendMode = pixelActive ? 'default' : 'skip';
     pixelBtn.classList.toggle('active', pixelActive);
     status.textContent = pixelActive ? '🔳 Пикселизация включена' : '⬜ Пикселизация выключена';
   }
 });
-
-// Автопереключение
-setInterval(() => {
-  if (animations.length >= 2) {
-    if (mv.animationName === animations[0]) {
-      mv.animationName = animations[1];
-    } else {
-      mv.animationName = animations[0];
-    }
-    mv.currentTime = 0;
-  }
-}, 15000);
 </script>
 
 </body>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Моя 3D модель с эффектами</title>
   
-  <!-- Подключаем модульную версию (с поддержкой эффектов) -->
+  <!-- ПОДКЛЮЧЕНИЕ БИБЛИОТЕК - ПРОВЕРЕННЫЙ ВАРИАНТ -->
   <script type="importmap">
     {
       "imports": {
@@ -13,21 +13,26 @@
       }
     }
   </script>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer-module.min.js"></script>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer-effects.min.js"></script>
+  
+  <!-- Используем проверенные ссылки с правильными версиями -->
+  <script type="module" src="https://esm.sh/@google/model-viewer@3.5.0"></script>
+  <script type="module" src="https://esm.sh/@google/model-viewer-effects@3.5.0"></script>
   
   <style>
     body { margin: 0; font-family: Arial; background: #f2f2f2; }
+    
     #controls {
       position: fixed; top: 20px; left: 20px; z-index: 10;
       background: white; padding: 15px; border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
+    
     button {
       margin: 5px; padding: 10px 20px; cursor: pointer;
       font-size: 16px; background-color: #4CAF50; color: white;
       border: none; border-radius: 5px;
     }
+    
     button:hover { background-color: #45a049; }
     
     /* Стили для чекбоксов */
@@ -38,19 +43,25 @@
       font-size: 15px;
       cursor: pointer;
     }
+    
     .effect-checkbox input {
       width: 18px;
       height: 18px;
       margin-right: 10px;
       cursor: pointer;
     }
+    
     h4 {
       margin: 15px 0 5px 0;
       border-top: 1px solid #ccc;
       padding-top: 10px;
     }
     
-    model-viewer { width: 100vw; height: 100vh; background: #e0e0e0; }
+    model-viewer { 
+      width: 100vw; 
+      height: 100vh; 
+      background: #e0e0e0; 
+    }
   </style>
 </head>
 <body>
@@ -60,7 +71,6 @@
   <button id="btn1">Анимация 1</button>
   <button id="btn2">Анимация 2</button>
   
-  <!-- Чекбоксы для эффектов -->
   <h4>✨ Эффекты</h4>
   <label class="effect-checkbox">
     <input type="checkbox" id="togglePixelate"> Пикселизация
@@ -72,27 +82,28 @@
   <p id="status" style="font-size: 14px; color: #666;">Загрузка...</p>
 </div>
 
-<!-- Внутрь model-viewer добавили эффекты -->
+<!-- Модель -->
 <model-viewer
   id="mv"
   src="Rouge (Prime)1.glb"
   camera-controls
   autoplay
+  style="width: 100%; height: 100vh;"
 >
+  <!-- Эффекты -->
   <effect-composer>
     <pixelate-effect id="pixelEffect" granularity="5" blend-mode="skip"></pixelate-effect>
-    <outline-effect id="outlineEffect" color="#ff0000" blend-mode="skip"></outline-effect>
+    <outline-effect id="outlineEffect" color="red" blend-mode="skip"></outline-effect>
   </effect-composer>
 </model-viewer>
 
 <script>
-
 const mv = document.getElementById('mv');
 const btn1 = document.getElementById('btn1');
 const btn2 = document.getElementById('btn2');
 const status = document.getElementById('status');
 
-// Получаем элементы эффектов
+// Эффекты
 const pixelEffect = document.getElementById('pixelEffect');
 const outlineEffect = document.getElementById('outlineEffect');
 const togglePixelate = document.getElementById('togglePixelate');
@@ -103,7 +114,7 @@ let animations = [];
 // Когда модель загрузилась
 mv.addEventListener('load', () => {
   animations = mv.availableAnimations;
-  status.textContent = 'Найдено анимаций: ' + animations.length;
+  status.textContent = '✅ Модель загружена! Найдено анимаций: ' + animations.length;
   console.log('Анимации:', animations);
   
   if (animations.length > 0) {
@@ -112,8 +123,9 @@ mv.addEventListener('load', () => {
 });
 
 // Если ошибка загрузки
-mv.addEventListener('error', () => {
-  status.textContent = '❌ Ошибка: файл модели не найден!';
+mv.addEventListener('error', (e) => {
+  console.error('Ошибка загрузки модели:', e);
+  status.textContent = '❌ Ошибка: файл модели не найден! Проверьте имя файла.';
 });
 
 // Кнопка 1
@@ -144,9 +156,9 @@ setInterval(() => {
     }
     mv.currentTime = 0;
   }
-}, 15000); // 15 секунды
+}, 15000);
 
-// ========== Управление эффектами ==========
+// Управление эффектами
 togglePixelate.addEventListener('change', (event) => {
   pixelEffect.blendMode = event.target.checked ? 'default' : 'skip';
   status.textContent = event.target.checked ? '✅ Пикселизация включена' : '❌ Пикселизация выключена';
@@ -156,7 +168,6 @@ toggleOutline.addEventListener('change', (event) => {
   outlineEffect.blendMode = event.target.checked ? 'default' : 'skip';
   status.textContent = event.target.checked ? '✅ Контур включен' : '❌ Контур выключен';
 });
-// ====================================================
 </script>
 
 </body>
